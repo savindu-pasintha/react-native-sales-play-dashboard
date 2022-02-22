@@ -1,24 +1,27 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, BackHandler, Alert, Platform, Linking } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem, DrawerView, } from '@react-navigation/drawer';
 import LoadWebPage from './components/util/LoadWebPage';
 import Login from './components/screens/Login';
-import Spalsh from './components/screens/Spalsh';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from "@expo/vector-icons";
 
+function currentDate() {
+  var date = new Date();
+  return (date.getFullYear() + "-" + date.getMonth() + "-" + date.getDay());
+}
 function ProductList() {
   return (
     <View style={{ flex: 1, }}>
-      <LoadWebPage style={{ flex: 1, }} dashboard="2" username="indikakules3@gmail.com" USER_CURRENT_DATE="2022-02-19" />
+      <LoadWebPage style={{ flex: 1, }} dashboard="2" username="indikakules3@gmail.com" USER_CURRENT_DATE={currentDate()} />
     </View>
   );
 }
 function Dashboard() {
   return (
     <View style={{ flex: 1, }}>
-      <LoadWebPage style={{ flex: 1, }} dashboard="1" username="indikakules3@gmail.com" USER_CURRENT_DATE="2022-01-19" />
+      <LoadWebPage style={{ flex: 1, }} dashboard="1" username="indikakules3@gmail.com" USER_CURRENT_DATE={currentDate()} />
     </View>
   );
 }
@@ -26,7 +29,6 @@ function Home() { return (<Dashboard />); }
 //async
 function CustomDrawerContent(props) {
   var username = "Please Login Now !";
-
   /*
   try {
     var value = await AsyncStorage.getItem("@usernameKey");
@@ -36,11 +38,38 @@ function CustomDrawerContent(props) {
     //console.log("Username cannot get ", e)
   }
  */
+  const createAlertIos = () =>
+    Alert.alert('Do you want to Exit app ?', '', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      { text: 'OK', onPress: () => BackHandler.exitApp() },
+    ]);
+
+  const createAlertAndroid = () =>
+    Alert.alert(
+      'Do you want to Exit app ?',
+      '',
+      [
+        {
+          text: 'OK',
+          onPress: () => BackHandler.exitApp(),
+          style: 'cancel',
+        },
+      ]
+    );
+
   return (
     <DrawerContentScrollView {...props}>
-      <DrawerItem label={username} />
-      <DrawerItemList {...props} />
-      <DrawerItem label="Help" onPress={() => alert('Link to help')} />
+      <DrawerItemList style={{ color: 'blue' }} {...props} />
+      <DrawerItem label="Exit app" onPress={() => {
+        if (Platform.OS === 'ios') { createAlertIos(); }
+        else if (Platform.OS === 'android') { createAlertAndroid(); }
+      }} />
+      <DrawerItem label="Help with us .." onPress={() => Linking.openURL('https://mywebsite.com/help')} />
+      <DrawerItem label="www.nvision.lk" />
     </DrawerContentScrollView>
   );
 }

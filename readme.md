@@ -32,3 +32,35 @@
     "@react-navigation/native-stack": "6.0.5",
     "@react-navigation/native": "6.0.2",
     "@react-navigation/stack": "6.0.6"
+
+
+    const lg = async () => {
+        //
+        var url = "/dasboard_user_login_authentication.php";
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Access-Control-Allow-Headers", "*");
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+        xhr.setRequestHeader("mode", "cors");
+        xhr.setRequestHeader("Credentials", "true");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+            }
+        };
+        var data = "action=LOGIN_AUTH&login_username=indikakules3%40gmail.com&login_password=12345678";
+        xhr.send(data);
+    }
+
+    options={{
+        title: 'Home',
+        drawerIcon: ({ focused, size }) => (
+          <MaterialIcons
+            name="visibility"
+            size={size}
+            color={focused ? '#7cc' : '#ccc'}
+          />
+        ),
+      }}

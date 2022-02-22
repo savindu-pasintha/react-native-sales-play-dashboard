@@ -1,132 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { CheckBox } from 'react-native-check-box';
 import { MaterialIcons } from "@expo/vector-icons";
-import { APILogin } from '../API';
-import Images from '../Images/Login_page_image.png';
-import axios from 'axios';
+import Images1 from '../Images/logo.png';
+import Images2 from '../Images/icon.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create, update, remove, show } from '../SqlLiteDb';
 
 const Login = ({ navigation }) => {
-
-
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
     const [isSelected, setSelection] = useState(true);
     const [err, setErr] = useState({ username: '', password: '', api: '' });
 
-    /*
-    await axios.post("https://spdevapi.nvision.lk/modules/dasboard_user_login_authentication.php",
-        {
-            "action": "LOGIN_AUTH",
-            "login_username": "indikakules3@gmail.com",
-            "login_password": "12345678"
-        }).then((e) => { console.log(e); }).catch((e) => {
-            console.log(e);
-        })
-        */
-
-    //validate with username/password /relpace queries
-
     const loginFun = async () => {
-        console.log(create('items'));
-        if (userName != "" && password != "") {
-            if (userName != null && password != null) {
-                var result = { Status: 1 }; //APILogin(userName, password);
-                if (result.Status == 1) {
-                    // try {
-                    // await AsyncStorage.setItem('@usernameKey', userName);
-                    // await AsyncStorage.setItem('@passwordKey', password);
-                    // setTimeout(() => {
-                    navigation.push("AppNavigationDrawer");
-                    //navigation.navigate("AppNavigationDrawer");
-                    // }, 1000);
-                    // } catch (error) {
-                    //     throw e;
-                    // console.log("Login Data Save Error", error);
-                    // }
-                    //console.log("line 19 - login pass");
-                }
-                else { setErr({ username: "Please Enter username..", password: "Please Enter password.." }); }
-                if (!result) {
-                    setErr({ username: '', password: '', api: "Somthing went wrong !" });
-                    //console.log("line 21 - Login fail !");
-                }
-            }
-        } else {
-            setErr({ username: "Please Enter username..", password: "Please Enter password.." });
-            //console.log("line 25 - Please Enter values ! ");
-        }
-
-        /*
         try {
-            var person = {
-                'action': "LOGIN_AUTH",
-                "login_username": "indikakules3@gmail.com",
-                "login_password": "12345678"
-            };
- 
-            var formData = new FormData();
-            formData.append("action", "LOGIN_AUTH");
-            formData.append("login_username", "indikakules3@gmail.com");
-            formData.append("login_password", "12345678");
- 
-            const options = {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: "no-cache",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                body: formData
-            };
- 
-            await fetch('https://spdevapi.nvision.lk/modules/dasboard_user_login_authentication.php', options)
-                .then((response) => response.json())
-                .then((responseJson) => {
-                    alert(JSON.stringify(responseJson));
-                    console.log(responseJson);
-                })
-                .catch((e) => { console.log(e) })
- 
-            /*
-            //body: JSON.stringify(person)
-            const rawResponse = await fetch('https://spdevapi.nvision.lk/modules/dasboard_user_login_authentication.php', options);
-            const content = await rawResponse.json();
-            console.log('content', content);
-            */
+            if (userName != "" && password != "") {
+                if (userName != null && password != null) {
+                    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userName)) {
+                        var myHeaders = new Headers();
+                        var res = {};
+                        myHeaders.append("Cookie", "PHPSESSID=c4ce8df210bfc959deece4052c6faa02");
+                        var formdata = new FormData();
+                        formdata.append("action", "LOGIN_AUTH");
+                        formdata.append("login_username", userName.toString());
+                        formdata.append("login_password", password.toString());
+                        var requestOptions = {
+                            method: 'POST',
+                            headers: myHeaders,
+                            body: formdata,
+                            redirect: 'follow'
+                        };
+                        await fetch("https://spdevapi.nvision.lk/modules/dasboard_user_login_authentication.php", requestOptions)
+                            .then(response => response.json())
+                            .then(result => res = result)
+                            .catch(error => console.log('error fetch():', error));
+                        if (!res) {
+                            setErr({ username: '', password: '', api: "Somthing went wrong !" });
+                        }
+                        else if (res.result.Status == 1) {
+                            try {
+                                // await AsyncStorage.setItem('@usernameKey', userName);
+                                // await AsyncStorage.setItem('@passwordKey', password);
+                                setTimeout(() => {
+                                    navigation.push("AppNavigationDrawer");
+                                    //navigation.navigate("AppNavigationDrawer");
+                                }, 1000);
+                            } catch (error) {
+                                console.log("Login Data Save Error", error);
+                            }
+                        }
+                        else {
+                            setErr({ username: "Please Enter Correct username !", password: "Please Enter Correct password !" });
+                        }
+                    } else {
+                        setErr({ username: "Please Enter Correct username !", password: "Please Enter Correct password !" });
 
-        /*if (userName != "" && password != "") {
-            if (userName != null && password != nurll) {
-                var result = ''; //APILogin(userName, password);
-                if (result.Status == 1) { console.log("line 19 - login pass"); }
-                else { setErr({ username: "Please Enter ..", password: "Please Enter .." }); }
-                if (!result) { setErr({ username: '', password: '', api: "Somthing went wrong !" }); console.log("line 21 - Login fail !"); }
+                    }
+                }
+            } else {
+                setErr({ username: "Please Enter username..", password: "Please Enter password.." });
             }
-        } else {
-            setErr({ username: "Please Enter ..", password: "Please Enter .." });
-            console.log("line 25 - Please Enter values ! ");
+        } catch (e) {
+            console.log('exception', e);
         }
-    } catch (e) {
-        console.log('exception', e);
-    }
-        */
     }
 
-    const remember = () => {
-        if (chk == true) { console.log("password and user name saved !"); }
-        else { console.log("password and user name nat saved ..."); }
-    }
-
-    //source={{ uri: "https://picsum.photos/id/237/200/300" }} require('./Images/Login_page_image.png')
     return (
         <View style={styles.mainView}>
             <View style={styles.box1}>
-                <Image source={Images} style={styles.image} />
+                <Image source={Images1 || Images2} style={styles.image} />
             </View>
             <View style={styles.box2}>
                 <View style={styles.row1}>
@@ -136,7 +80,9 @@ const Login = ({ navigation }) => {
                         editable
                         maxLength={40}
                         value={userName}
-                        placeholder="Username ..." />
+                        placeholder="Username ................................"
+                        placeholderTextColor="black"
+                    />
                     <Text style={styles.text} >{((err.username != '') ? err.username : '')}</Text>
                 </View>
                 <View style={styles.row1}>
@@ -147,7 +93,9 @@ const Login = ({ navigation }) => {
                         maxLength={40}
                         value={password}
                         secureTextEntry={show}
-                        placeholder="Password ..." />
+                        placeholder="Password .................................."
+                        placeholderTextColor="black"
+                    />
                     <Text style={styles.text}>{((err.password != '') ? err.password : '')}</Text>
                 </View>
 
@@ -166,7 +114,8 @@ const Login = ({ navigation }) => {
 const styles = StyleSheet.create({
     mainView: {
         height: 'auto',
-        width: "100%"
+        width: "100%",
+        backgroundColor: "white"
     },
     box1: {
         width: '100%',
@@ -178,9 +127,8 @@ const styles = StyleSheet.create({
         height: '40%',
     },
     image: {
-        width: 200,
-        height: 200,
-        marginTop: '25%'
+        width: 300,
+        height: 300,
     },
     row1: {
         width: '100%',
